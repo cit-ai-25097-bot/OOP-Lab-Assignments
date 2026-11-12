@@ -1,0 +1,107 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+using namespace std;
+
+struct FeetInches {
+    int feet;
+    int inches;
+};
+
+struct RoomDimension {
+    FeetInches length;
+    FeetInches width;
+};
+
+double toFeet(const FeetInches& measurement) {
+    return measurement.feet + measurement.inches / 12.0;
+}
+
+double computeTheCarpetingCost(const RoomDimension& room, double pricePerSquareFoot) {
+    double lengthInFeet = toFeet(room.length);
+    double widthInFeet = toFeet(room.width);
+    double area = lengthInFeet * widthInFeet;
+
+    return area * pricePerSquareFoot;
+}
+
+FeetInches readDimension(const string& label) {
+    FeetInches measurement;
+
+    cout << label << " - enter feet: ";
+    cin >> measurement.feet;
+    cout << label << " - enter inches (0 to 11): ";
+    cin >> measurement.inches;
+
+    while (measurement.feet < 0 || measurement.inches < 0 ||
+           measurement.inches > 11) {
+        cout << "Invalid dimension. Feet must be non-negative and inches 0-11.\n";
+        cout << label << " - enter feet: ";
+        cin >> measurement.feet;
+        cout << label << " - enter inches (0 to 11): ";
+        cin >> measurement.inches;
+    }
+
+    return measurement;
+}
+
+int main() {
+    int roomCount;
+    double pricePerSquareFoot;
+
+    cout << "Enter the number of rooms: ";
+    cin >> roomCount;
+
+    if (roomCount <= 0) {
+        cout << "The number of rooms must be greater than zero.\n";
+        return 1;
+    }
+
+    cout << "Enter carpet price per square foot (Rs.): ";
+    cin >> pricePerSquareFoot;
+
+    if (pricePerSquareFoot < 0) {
+        cout << "Carpet price cannot be negative.\n";
+        return 1;
+    }
+
+    vector<RoomDimension> rooms(roomCount);
+
+    for (int i = 0; i < roomCount; ++i) {
+        cout << "\nRoom " << i + 1 << " dimensions:\n";
+        rooms[i].length = readDimension("Length");
+        rooms[i].width = readDimension("Width");
+    }
+
+    int choice;
+    do {
+        cout << "\n========== Carpet Cost Menu ==========\n";
+        cout << "1. Display carpet cost for each room\n";
+        cout << "2. Display total carpet cost for the house\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        cout << fixed << setprecision(2);
+
+        if (choice == 1) {
+            for (int i = 0; i < roomCount; ++i) {
+                cout << "Room " << i + 1 << " cost: Rs. "
+                     << computeTheCarpetingCost(rooms[i], pricePerSquareFoot)
+                     << '\n';
+            }
+        } else if (choice == 2) {
+            double totalCost = 0.0;
+            for (const RoomDimension& room : rooms) {
+                totalCost += computeTheCarpetingCost(room, pricePerSquareFoot);
+            }
+            cout << "Total carpet cost: Rs. " << totalCost << '\n';
+        } else if (choice != 0) {
+            cout << "Invalid choice. Please try again.\n";
+        }
+
+    } while (choice != 0);
+
+    cout << "Thank you for using the Carpet Cost Calculator.\n";
+    return 0;
+}
